@@ -61,12 +61,6 @@ angular.module("leaflet-directive").directive('layers', function ($log, $q, leaf
 
                 // Only add the layers switch selector control if we have more than one baselayer + overlay
                 var numberOfLayers = Object.keys(layers.baselayers).length;
-                if (isObject(layers.overlays)) {
-                    numberOfLayers += Object.keys(layers.overlays).length;
-                }
-                if (numberOfLayers > 1) {
-                    leafletLayers.controls.layers.addTo(map);
-                }
 
                 // If there is no visible layer add first to the map
                 if (!oneVisibleLayer && Object.keys(leafletLayers.baselayers).length > 0) {
@@ -87,7 +81,14 @@ angular.module("leaflet-directive").directive('layers', function ($log, $q, leaf
                     if (layers.overlays[layerName].visible === true) {
                         map.addLayer(leafletLayers.overlays[layerName]);
                     }
-                    leafletLayers.controls.layers.addOverlay(leafletLayers.overlays[layerName], layers.overlays[layerName].name);
+                    // Add to controls if unless toggleable is false
+                    if (!(layers.overlays[layerName].toggleable === false)) {
+                        numberOfLayers ++;
+                        leafletLayers.controls.layers.addOverlay(leafletLayers.overlays[layerName], layers.overlays[layerName].name);
+                    }
+                }
+                if (numberOfLayers > 1) {
+                    leafletLayers.controls.layers.addTo(map);
                 }
 
                 // Watch for the base layers
